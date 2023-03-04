@@ -1,58 +1,63 @@
-const moment = require('moment');
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const moment = require("moment");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
+async function create(req, res) {
+  const aluguel = await prisma.aluguel.create({
+    data: req.body,
+  });
+  res.json(aluguel);
+}
+// =================================================
 
-async function create(req, res){
-   const aluguel = await prisma.aluguel.create({
-        data: req.body
+async function get(req, res) {
+  res.json(
+    await prisma.aluguel.findMany({
+      include: {
+        Livro: true,
+        Cliente: true,
+      },
     })
-    res.json(aluguel)
+  );
 }
 // =================================================
 
-async function get(req, res){
-    res.json(await prisma.aluguel.findMany({
-        include:{
-            Livro: true,
-            Cliente: true
-        },
-       
-    }))
-}
-// =================================================
+async function put(req, res) {
+  let { data, dataDevolucao } = req.body;
+  let { valorDiaria } = req.body.Livro;
 
-async function put(req, res){
-    let {data, dataDevolucao} = req.body;
+  let dias = moment(dataDevolucao).diff(data, "days");
 
-    let dias = moment(dataDevolucao).diff(data, 'days')
+  req.body.valorArrecadado = parseFloat(dias) * parseFloat(valorDiaria);
 
-    req.body.valorArrecadado = 200
-    
-    // parseFloat(dias) * parseFloat(req.body.valorDiaria)
-    
-
-    delete req.body.valorDiaria
-   
+  delete req.body.valorDiaria;
+  delete req.body.Livro;
+  delete req.body.Cliente;
+  
   const aluguel = await prisma.aluguel.update({
-        data: req.body,
-        where: {
-            id: req.body.id,
-        }
-    })    
-    return res.json (aluguel)
+    data: req.body,
+    where: {
+      id: req.body.id,
+    },
+  });
+  return res.json(aluguel);
 }
 // =================================================
 
-async function deletar(req, res){
-    const aluguel = await prisma.aluguel.delete({
-         data: req.body,
-     })
-     res.json(aluguel)
- }
+async function deletar(req, res) {
+  if (await get(req.body.id)) {
+  const aluguel = await prisma.aluguel.delete({
+    data: req.body,
+      where:{
+        id: req.body.id,
+      }    
+  })
+  return res.json(aluguel)
+} else { 
+    return res.status(500).json('FALHA NA EXCLUSÃO')
+}
+}
 
 
-module.exports = {create, get, put, deletar}
 
-
-
+module.exports = { create, get, put, deletar };

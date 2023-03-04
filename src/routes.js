@@ -18,6 +18,6 @@ routes.put('/livros/:id',livroController.putIsAlterado)
 
 routes.get('/aluguel',aluguelController.get)
 routes.post('/aluguel',aluguelController.create)
-routes.delete('/aluguel',aluguelController.deletar)
+routes.delete('/aluguel/:id',aluguelController.deletar)
 routes.put('/aluguel',aluguelController.put)
 module.exports = {routes}
