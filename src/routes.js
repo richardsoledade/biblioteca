@@ -20,4 +20,7 @@ routes.get('/aluguel',aluguelController.get)
 routes.post('/aluguel',aluguelController.create)
 routes.delete('/aluguel/:id',aluguelController.deletar)
 routes.put('/aluguel',aluguelController.put)
+
+
+routes.get('/aluguel/hst/:id',aluguelController.getHst)
 module.exports = {routes}
